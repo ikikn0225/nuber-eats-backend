@@ -13,6 +13,7 @@ import { JwtModule } from './jwt/jwt.module';
 import { GuardsConsumer } from '@nestjs/core/guards/guards-consumer';
 import { JwtMiddleware } from './jwt/jwt.middleware';
 import { AuthModule } from './auth/auth.module';
+import { Verification } from './users/entities/verification.entity';
 
 
 @Module({
@@ -40,7 +41,7 @@ import { AuthModule } from './auth/auth.module';
       database: process.env.DB_NAME, 
       synchronize: process.env.NODE_ENV !== 'prod',
       logging: process.env.NODE_ENV !== 'prod',
-      entities: [User],
+      entities: [User, Verification],
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,
