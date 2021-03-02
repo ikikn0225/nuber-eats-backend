@@ -8,6 +8,7 @@ import { User } from "./entities/user.entity";
 import { JwtService } from "src/jwt/jwt.service";
 import { EditProfileInput, EditProfileOutput } from "./dtos/edit-profile.dto";
 import { Verification } from "./entities/verification.entity";
+import { ok } from "assert";
 
 
 @Injectable()
@@ -44,7 +45,7 @@ export class UsersService {
         //check if the password is correct
         //make a JWT and give it to the user
         try {
-            const user = await this.users.findOne({ email });
+            const user = await this.users.findOne({ email }, {select:["id", "password"]});
             if(!user) {
                 return {
                     ok:false,
@@ -58,6 +59,8 @@ export class UsersService {
                     error: "Wrong password",
                 }
             }
+            console.log(user);
+            
             const token = this.jwtservice.sign(user.id);
             return {
                 ok: true,
@@ -84,5 +87,19 @@ export class UsersService {
         }       
         if(password)    user.password   = password;
         return this.users.save(user);
+    }
+
+    async verifyEmail(code:string): Promise<boolean> {
+        try {
+            const verification = await this.verifications.findOne({code}, {relations:["user"]});
+            if(verification) {
+                verification.user.verified = true;
+                this.users.save(verification.user);
+            }
+            throw new Error();
+        } catch (e) {
+            console.log(e);
+            return false;
+        }
     }
 }
