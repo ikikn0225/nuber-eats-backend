@@ -16,27 +16,17 @@ export class UsersResolver {
     constructor(private readonly usersService: UsersService){}
 
     @Mutation(returns => CreateAccountOutput)
-    async createAccount(@Args('input') createAccountInput: CreateAccountInput,):Promise<CreateAccountOutput>{
-        try {
-            return this.usersService.createAccount(createAccountInput);
-        } catch (error) {
-            return {
-                error,
-                ok:false,
-            }
-        }
+    async createAccount(
+        @Args('input') createAccountInput: CreateAccountInput,
+    ):Promise<CreateAccountOutput>{
+        return this.usersService.createAccount(createAccountInput);
     }
 
     @Mutation(returns => LoginOutput)
-    async login(@Args('input') loginInput: LoginInput): Promise<LoginOutput> {
-        try {
-            return this.usersService.login(loginInput);
-        } catch (error) {
-            return {
-                ok: false,
-                error,
-            };
-        }
+    async login(
+        @Args('input') loginInput: LoginInput
+    ): Promise<LoginOutput> {
+        return this.usersService.login(loginInput);
     } 
 
     @Query(returns=>User)
@@ -48,19 +38,7 @@ export class UsersResolver {
     @UseGuards(AuthGuard)
     @Query(returns=>UserProfileOutput)
     async userProfile(@Args() userProfileInput:UserProfileInput): Promise<UserProfileOutput> {
-        try {
-            const user = await this.usersService.findById(userProfileInput.userId); 
-            if(!user) throw Error();
-            return {
-                ok: Boolean(user),
-                user,
-            }
-        } catch (error) {
-            return {
-                error: 'User Not Found',
-                ok: false,
-            }
-        }
+        return this.usersService.findById(userProfileInput.userId); 
     }
 
     @UseGuards(AuthGuard)
@@ -83,18 +61,8 @@ export class UsersResolver {
     }
 
     @Mutation(returns=>VerifyEmailOutput)
-    async verifyEmail(@Args('input') {code}:VerifyEmailInput):Promise<VerifyEmailOutput> {
-        try {
-            await this.usersService.verifyEmail(code);
-            return {
-                ok:true,
-            };
-        } catch (error) {
-            return{
-                ok:false,
-                error,
-            };
-        }
+    verifyEmail(@Args('input') {code}:VerifyEmailInput):Promise<VerifyEmailOutput> {
+            return this.usersService.verifyEmail(code);
     }
 
 
