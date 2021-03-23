@@ -11,28 +11,33 @@ import { Verification } from "./entities/verification.entity";
 import { ok } from "assert";
 import { VerifyEmailOutput } from "./dtos/verify-email.dto";
 import { UserProfileOutput } from "./dtos/user-profile.dto";
+import { MailService } from "src/mail/mail.service";
 
 
 @Injectable()
-export class UsersService {
+export class UserService {
     constructor(
         @InjectRepository(User) private readonly users:Repository<User>,
         @InjectRepository(Verification) private readonly verifications:Repository<Verification>,
         private readonly jwtservice: JwtService,
+        private readonly mailservice: MailService,
     ) { }
 
     async createAccount({email, password, role}: CreateAccountInput): Promise<{ok: boolean, error?: string}> {
         try {
             const exists = await this.users.findOne({email});
+            console.log(exists);
+            
             if(exists) {
                 return {ok: false, error: 'There is a user with that email already'};
             }
             const user = await this.users.save(this.users.create({email, password, role}));
-            await this.verifications.save(
+            const verification = await this.verifications.save(
                 this.verifications.create({
                     user,
                 })
             );
+            this.mailservice.sendVerificationEmail(user.email, verification.code);
             return {ok: true};
         } catch (e) {
             return {ok: false, error: 'Could not create account'};
@@ -95,7 +100,8 @@ export class UsersService {
         if(email) {
             user.email      = email;
             user.verified   = false;
-            await this.verifications.save(this.verifications.create({user}));
+            const verification = await this.verifications.save(this.verifications.create({user}));
+            this.mailservice.sendVerificationEmail(user.email, verification.code);
         }       
         if(password)    user.password   = password;
         return this.users.save(user);
