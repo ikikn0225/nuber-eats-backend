@@ -80,11 +80,11 @@ export class UserService {
 
     async findById(id: number): Promise<UserProfileOutput> {
         try {
-            const user = await this.users.findOne({id});
+            const user = await this.users.findOneOrFail({id});
             if(user) {
                 return {
                     ok:true,
-                    user:user,
+                    user,
                 };
             }
         } catch (error) {
@@ -92,16 +92,21 @@ export class UserService {
         }
     }
 
-    async editProfile(userId:number, {email, password}:EditProfileInput):Promise<User> {
-        const user = await this.users.findOne(userId);
-        if(email) {
-            user.email      = email;
-            user.verified   = false;
-            const verification = await this.verifications.save(this.verifications.create({user}));
-            this.mailservice.sendVerificationEmail(user.email, verification.code);
-        }       
-        if(password)    user.password   = password;
-        return this.users.save(user);
+    async editProfile(userId:number, {email, password}:EditProfileInput):Promise<EditProfileOutput> {
+        try {
+            const user = await this.users.findOne(userId);
+            if(email) {
+                user.email      = email;
+                user.verified   = false;
+                const verification = await this.verifications.save(this.verifications.create({user}));
+                this.mailservice.sendVerificationEmail(user.email, verification.code);
+            }       
+            if(password)    user.password   = password;
+            await this.users.save(user);
+            return {ok:true,};
+        } catch (error) {
+            return {ok: false, error: 'Could not update profile'};
+        }
     }
 
     async verifyEmail(code:string): Promise<VerifyEmailOutput> {
@@ -115,7 +120,7 @@ export class UserService {
             }
             return {ok:false, error:'verification not found.'};
         } catch (error) {
-            return {ok:false, error};
+            return {ok:false, error:'Could not verify email.'};
         }
     }
 }
