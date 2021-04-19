@@ -2,7 +2,7 @@ import { UseGuards } from "@nestjs/common";
 import { Resolver, Query, Mutation, Args, Context } from "@nestjs/graphql";
 import { AuthUser } from "src/auth/auth-user.decorator";
 import { AuthGuard } from "src/auth/auth.guard";
-import { Roles } from "src/auth/role.decorator";
+import { Role } from "src/auth/role.decorator";
 import { CreateAccountInput, CreateAccountOutput } from "./dtos/create-account.dto";
 import { EditProfileInput, EditProfileOutput } from "./dtos/edit-profile.dto";
 import { LoginInput, LoginOutput } from "./dtos/login.dto";
@@ -31,18 +31,18 @@ export class UserResolver {
     } 
 
     @Query(returns=>User)
-    @Roles(["Any"])
+    @Role(["Any"])
     me(@AuthUser() authUser:User) {
         return authUser;
     }
 
-    @Roles(["Any"])
+    @Role(["Any"])
     @Query(returns=>UserProfileOutput)
     async userProfile(@Args() userProfileInput:UserProfileInput): Promise<UserProfileOutput> {
         return this.userService.findById(userProfileInput.userId); 
     }
 
-    @Roles(["Any"])
+    @Role(["Any"])
     @Mutation(returns=>EditProfileOutput)
     async editProfile(
         @AuthUser() authUser:User,
