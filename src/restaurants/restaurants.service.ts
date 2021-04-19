@@ -3,6 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "src/users/entities/user.entity";
 import { Repository } from "typeorm";
 import { CreateRestaurantInput, CreateRestaurantOutput } from "./dtos/create-restaurant.dto";
+import { EditRestaurantInput } from "./dtos/edit-restaurant.dto";
 import { Category } from "./entities/category.entity";
 import { Restaurant } from "./entities/restaurant.entity";
 
@@ -16,18 +17,25 @@ export class RestaurantService {
         private readonly categories:Repository<Category>
     ) {}
 
+    async getOrCreateCategory(name:string) {
+        const categoryName = name.trim().toLocaleLowerCase();
+        const categorySlug = categoryName.replace(/ /g, "-");
+        let category = await this.categories.findOne({slug:categorySlug});
+        if(!category) {
+            category = await this.categories.save(this.categories.create({slug:categorySlug, name:categoryName}));
+        }
+        return category;
+    }
+
     async createRestaurant(
         owner: User,
         createRestaurantInput: CreateRestaurantInput): Promise<CreateRestaurantOutput> {
         try {
             const newRestaurant = this.restaurants.create(createRestaurantInput);
             newRestaurant.owner = owner;
+            const category = await this.getOrCreateCategory(createRestaurantInput.categoryName,);
             const categoryName = createRestaurantInput.categoryName.trim().toLocaleLowerCase();
             const categorySlug = categoryName.replace(/ /g, "-");
-            let category = await this.categories.findOne({slug:categorySlug});
-            if(!category) {
-                category = await this.categories.save(this.categories.create({slug:categorySlug, name:categoryName}));
-            }
             newRestaurant.category = category;
 
             await this.restaurants.save(newRestaurant);
@@ -39,6 +47,35 @@ export class RestaurantService {
                 ok: false,
                 error: "Could not create restaurant.",
             };
+        }
+    }
+
+    async editRestaurant(
+        owner:User, 
+        editRestaurantInput: EditRestaurantInput
+    ): Promise<CreateRestaurantOutput> {
+        try {
+            const restaurant = await this.restaurants.findOne(editRestaurantInput.restaurantId,);
+            if(!restaurant) {
+                return {
+                    ok: false,
+                    error: "Restaurant not found",
+                }
+            }
+            if(owner.id !== restaurant.ownerId) {
+                return {
+                    ok:false,
+                    error: "You cannot edit a restaurant that you do not own",
+                }
+            }
+            return {
+                ok:true,
+            };
+        } catch (error) {
+            return {
+                ok:false,
+                error: "error!",
+            }
         }
     }
 }
