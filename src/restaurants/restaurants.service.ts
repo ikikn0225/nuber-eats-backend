@@ -3,7 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "src/users/entities/user.entity";
 import { Repository } from "typeorm";
 import { CreateRestaurantInput, CreateRestaurantOutput } from "./dtos/create-restaurant.dto";
-import { EditRestaurantInput } from "./dtos/edit-restaurant.dto";
+import { EditRestaurantInput, EditRestaurantOutput } from "./dtos/edit-restaurant.dto";
 import { Category } from "./entities/category.entity";
 import { Restaurant } from "./entities/restaurant.entity";
 import { CategoryRepository } from "./repositories/category.repository";
@@ -16,16 +16,6 @@ export class RestaurantService {
         private readonly restaurants:Repository<Restaurant>,
         private readonly categories:CategoryRepository
     ) {}
-
-    async getOrCreate(name:string) {
-        const categoryName = name.trim().toLocaleLowerCase();
-        const categorySlug = categoryName.replace(/ /g, "-");
-        let category = await this.categories.findOne({slug:categorySlug});
-        if(!category) {
-            category = await this.categories.save(this.categories.create({slug:categorySlug, name:categoryName}));
-        }
-        return category;
-    }
 
     async createRestaurant(
         owner: User,
@@ -51,14 +41,16 @@ export class RestaurantService {
     async editRestaurant(
         owner:User, 
         editRestaurantInput: EditRestaurantInput
-    ): Promise<CreateRestaurantOutput> {
+    ): Promise<EditRestaurantOutput> {
         try {
             const restaurant = await this.restaurants.findOne(editRestaurantInput.restaurantId,);
+            console.log(restaurant);
+            
             if(!restaurant) {
                 return {
                     ok: false,
                     error: "Restaurant not found",
-                }
+                };
             }
             if(owner.id !== restaurant.ownerId) {
                 return {
