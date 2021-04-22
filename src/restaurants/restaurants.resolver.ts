@@ -8,6 +8,7 @@ import { CategoryInput, CategoryOutput } from "./dtos/category.dto";
 import { CreateRestaurantInput, CreateRestaurantOutput } from "./dtos/create-restaurant.dto";
 import { DeleteRestaurantInput, DeleteRestaurantOutput } from "./dtos/delete-restaurant.dto";
 import { EditRestaurantInput, EditRestaurantOutput } from "./dtos/edit-restaurant.dto";
+import { RestaurantInput, RestaurantOutput } from "./dtos/restaurants.dto";
 import { Category } from "./entities/category.entity";
 import { Restaurant } from "./entities/restaurant.entity";
 import { CategoryRepository } from "./repositories/category.repository";
@@ -43,6 +44,11 @@ export class RestaurantResolver{
         @Args('input') deleteRestaurantInput: DeleteRestaurantInput,
     ): Promise<DeleteRestaurantOutput> {
         return this.restaurantService.deleteRestaurant(owner, deleteRestaurantInput);
+    }
+
+    @Query(returns => RestaurantOutput)
+    restaurants(@Args('input') restaurantsInput:RestaurantInput):Promise<RestaurantOutput> {
+        return this.restaurantService.allRestaurants(restaurantsInput);
     }
 }
 
