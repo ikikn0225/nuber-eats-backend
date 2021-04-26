@@ -13,6 +13,7 @@ import { RestaurantInput, RestaurantOutput } from "./dtos/restaurant.dto";
 import { RestaurantsInput, RestaurantsOutput } from "./dtos/restaurants.dto";
 import { SearchRestaurantInput, SearchRestaurantOutput } from "./dtos/search-restaurant.dto";
 import { Category } from "./entities/category.entity";
+import { Dish } from "./entities/dish.entity";
 import { Restaurant } from "./entities/restaurant.entity";
 import { CategoryRepository } from "./repositories/category.repository";
 import { RestaurantService } from "./restaurants.service";
