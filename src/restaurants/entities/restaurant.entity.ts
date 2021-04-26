@@ -40,7 +40,7 @@ export class Restaurant extends CoreEntity {
     ownerId: number;
 
     @Field(type => [Dish], { nullable: true })
-    @OneToMany( type => Dish, dish => dish.restaurant, { nullable: true })
+    @OneToMany( type => Dish, dish => dish.restaurant, { nullable: true } )
     menu: Dish[];
 
 
