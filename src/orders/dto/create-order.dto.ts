@@ -20,7 +20,7 @@ export class CreateOrderInput {
     restaurantId: number;
 
     @Field(type => [CreateOrderItemInput])
-    items: CreateOrderItemInput;
+    items: CreateOrderItemInput[];
 }
 
 @ObjectType()
