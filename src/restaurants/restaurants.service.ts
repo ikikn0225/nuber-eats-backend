@@ -196,7 +196,7 @@ export class RestaurantService {
         try {
             const restaurant = await this.restaurants.findOne(restaurantId, {
                 relations: ['menu'],
-              });
+            });
             if(!restaurant) {
                 return {
                     ok:false,
@@ -238,42 +238,6 @@ export class RestaurantService {
         }
     }
 
-<<<<<<< HEAD
-    async createDish(
-        owner: User,
-        createDishInput: CreateDishInput,
-      ): Promise<CreateDishOutput> {
-        try {
-          const restaurant = await this.restaurants.findOne(
-            createDishInput.restaurantId,
-          );
-          if (!restaurant) {
-            return {
-              ok: false,
-              error: 'Restaurant not found',
-            };
-          }
-          if (owner.id !== restaurant.ownerId) {
-            return {
-              ok: false,
-              error: "You can't do that.",
-            };
-          }
-          await this.dishes.save(
-            this.dishes.create({ ...createDishInput, restaurant }),
-          );
-          return {
-            ok: true,
-          };
-        } catch (error) {
-          console.log(error);
-          return {
-            ok: false,
-            error: 'Could not create dish',
-          };
-        }
-      }
-=======
     async createDish(owner:User, createDishInput:CreateDishInput): Promise<CreateDishOutput> {
         try {
             const restaurant = await this.restaurants.findOne(createDishInput.restaurantId);
@@ -367,7 +331,6 @@ export class RestaurantService {
             }
         }
     }
->>>>>>> 5ed0e686924c62d90e269ceb1c4ba05b5ee0939f
 
 
 }
