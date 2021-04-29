@@ -46,11 +46,14 @@ export class User extends CoreEntity {
     restaurants: Restaurant[];
 
     @Field(type => [Order])
-    @OneToMany(type => Order, order => order.customer,)
+    @OneToMany(type => Order, order => order.customer)
     orders: Order[];
 
     @Field(type => [Order])
-    @OneToMany(type => Order, order => order.driver,)
+    @OneToMany(
+        type => Order,
+        order => order.driver,
+    )
     rides: Order[];
 
     @BeforeInsert()
