@@ -52,8 +52,12 @@ import { OrderItem } from './orders/entities/order-item.entity';
       entities: [User, Verification, Restaurant, Category, Dish, Order, OrderItem],
     }),
     GraphQLModule.forRoot({
+      installSubscriptionHandlers:true,
       autoSchemaFile: true,
-      context: ({ req }) => ({ user:req['user'] }),
+      context: ({ req }) => {
+        console.log(req);
+        return { user:req['user'] }
+      },
     }), 
     JwtModule.forRoot({
       privateKey: process.env.PRIVATE_KEY,
