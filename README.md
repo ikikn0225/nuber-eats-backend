@@ -2,16 +2,9 @@
 
 The Backend of Nuber Eats Clone
 
-- Edit Restaurant
-- Delete Restaurant
+- Orders Subscription
+    - Pending Orders(Owner) (s: newOrder) (t:  createOrder(newOrder))
+    - Order Status(Customer) (s: orderUpdate) (t: editOrder)
+    - Pending Pickup Order (Delivery) (s: orderUpdate) (t: editOrder(orderUpdate))
 
-
-- See Categories
-- See Restaurants by Category (pagination)
-- See Restaurants (pagination)
-- See Restaurant
-
-
-- Create Dish
-- Edit Dish
-- Delete Dish
+- Payments (CRON)
