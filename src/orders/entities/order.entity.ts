@@ -4,7 +4,7 @@ import { extend } from "joi";
 import { CoreEntity } from "src/common/entities/core.entity";
 import { Restaurant } from "src/restaurants/entities/restaurant.entity";
 import { User } from "src/users/entities/user.entity";
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, RelationId } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, RelationId } from "typeorm";
 import { OrderItem } from "./order-item.entity";
 
 
