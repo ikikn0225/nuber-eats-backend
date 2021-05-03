@@ -1,5 +1,7 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { PubSub } from "graphql-subscriptions";
+import { NEW_COOKED_ORDER, NEW_PENDING_ORDER, PUB_SUB } from "src/common/common.constants";
 import { Dish } from "src/restaurants/entities/dish.entity";
 import { Restaurant } from "src/restaurants/entities/restaurant.entity";
 import { User, UserRole } from "src/users/entities/user.entity";
@@ -13,16 +15,18 @@ import { Order, OrderStatus } from "./entities/order.entity";
 
 @Injectable()
  export class OrdersService {
-     constructor(
-        @InjectRepository(Order)
-        private readonly orders: Repository<Order>,
-        @InjectRepository(OrderItem)
-        private readonly orderItems: Repository<OrderItem>,
-        @InjectRepository(Restaurant)
-        private readonly restaurants: Repository<Restaurant>,
-        @InjectRepository(Dish)
-        private readonly dishes: Repository<Dish>,
-     ) {}
+    constructor(
+      @InjectRepository(Order)
+      private readonly orders: Repository<Order>,
+      @InjectRepository(OrderItem)
+      private readonly orderItems: Repository<OrderItem>,
+      @InjectRepository(Restaurant)
+      private readonly restaurants: Repository<Restaurant>,
+      @InjectRepository(Dish)
+      private readonly dishes: Repository<Dish>,
+      @Inject(PUB_SUB)
+      private readonly pubusb:PubSub,
+    ) {}
 
     async createOrder(customer:User, {restaurantId, items}:CreateOrderInput): Promise<CreateOrderOutput> {
         try {
@@ -79,7 +83,11 @@ import { Order, OrderStatus } from "./entities/order.entity";
             restaurant,
             total:orderFinalPrice,
             items:orderItems,
-        }),);
+          }),
+        );
+        await this.pubusb.publish(NEW_PENDING_ORDER, {
+          pendingOrders: {order, ownerId: restaurant.ownerId},
+        });
         return {
             ok:true,
         }
@@ -230,6 +238,13 @@ import { Order, OrderStatus } from "./entities/order.entity";
               status,
             },
           ]);
+          if(user.role === UserRole.Owner) {
+            if(status === OrderStatus.Cooked) {
+              await this.pubusb.publish(NEW_COOKED_ORDER, {
+                cookedOrders: { ...order, status },
+              });
+            }
+          }
           return {
             ok: true,
           };
