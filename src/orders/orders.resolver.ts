@@ -3,12 +3,13 @@ import { Args, Mutation, Resolver, Query, Subscription } from "@nestjs/graphql";
 import { PubSub } from "graphql-subscriptions";
 import { AuthUser } from "src/auth/auth-user.decorator";
 import { Role } from "src/auth/role.decorator";
-import { NEW_PENDING_ORDER, NEW_COOKED_ORDER, PUB_SUB } from "src/common/common.constants";
+import { NEW_PENDING_ORDER, NEW_COOKED_ORDER, PUB_SUB, NEW_ORDER_UPDATE } from "src/common/common.constants";
 import { User } from "src/users/entities/user.entity";
 import { CreateOrderInput, CreateOrderOutput } from "./dtos/create-order.dto";
 import { EditOrderInput, EditOrderOutput } from "./dtos/edit-order.dto";
 import { GetOrderInput, GetOrderOutput } from "./dtos/get-order.dto";
 import { GetOrdersInput, GetOrdersOutput } from "./dtos/get-orders.dto";
+import { OrderUpdateInput } from "./dtos/order-updates.dto";
 import { Order } from "./entities/order.entity";
 import { OrdersService } from "./orders.service";
 
@@ -75,5 +76,26 @@ export class OrderResolver {
   @Role(['Delivery'])
   cookedOrders() {
     return this.pubsub.asyncIterator(NEW_COOKED_ORDER);
+  }
+
+  @Subscription(returns => Order, {
+    filter: (
+      { orderUpdates: order } : { orderUpdates: Order },
+      { input }: { input: OrderUpdateInput },
+      { user }: { user: User },
+    ) => {
+      if( //User 역할에 하나도 속하지 않으면 return false;
+        order.driverId !== user.id &&
+        order.customerId !== user.id &&
+        order.restaurant.ownerId !== user.id
+      ) {
+        return false;
+      }
+      return order.id === input.id; //order의 id와 variables로 주어진 input의 id(Order의 id)가 같으면 return true;
+    }
+  })
+  @Role(['Any'])
+  orderUpdates(@Args('input') orderUpdatesInput: OrderUpdateInput) {
+    return this.pubsub.asyncIterator(NEW_ORDER_UPDATE);
   }
 }
