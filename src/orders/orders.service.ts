@@ -10,6 +10,7 @@ import { CreateOrderInput, CreateOrderOutput } from "./dtos/create-order.dto";
 import { EditOrderInput, EditOrderOutput } from "./dtos/edit-order.dto";
 import { GetOrderInput, GetOrderOutput } from "./dtos/get-order.dto";
 import { GetOrdersInput, GetOrdersOutput } from "./dtos/get-orders.dto";
+import { TakeOrderInput, TakeOrderOutput } from "./dtos/take-order.dto";
 import { OrderItem } from "./entities/order-item.entity";
 import { Order, OrderStatus } from "./entities/order.entity";
 
@@ -25,7 +26,7 @@ import { Order, OrderStatus } from "./entities/order.entity";
       @InjectRepository(Dish)
       private readonly dishes: Repository<Dish>,
       @Inject(PUB_SUB)
-      private readonly pubusb:PubSub,
+      private readonly pubsub:PubSub,
     ) {}
 
     async createOrder(customer:User, {restaurantId, items}:CreateOrderInput): Promise<CreateOrderOutput> {
@@ -85,7 +86,7 @@ import { Order, OrderStatus } from "./entities/order.entity";
             items:orderItems,
           }),
         );
-        await this.pubusb.publish(NEW_PENDING_ORDER, {
+        await this.pubsub.publish(NEW_PENDING_ORDER, {
           pendingOrders: {order, ownerId: restaurant.ownerId},
         });
         return {
@@ -144,6 +145,11 @@ import { Order, OrderStatus } from "./entities/order.entity";
     }
 
     canSeeOrder(user: User, order: Order): boolean {
+      console.log(user);
+      console.log(order);
+      console.log(order.restaurant.ownerId);
+      
+      
         let canSee = true;
         if (user.role === UserRole.Client && order.customerId !== user.id) {
           canSee = false;
@@ -239,12 +245,12 @@ import { Order, OrderStatus } from "./entities/order.entity";
           const newOrder = { ...order, status };
           if(user.role === UserRole.Owner) {
             if(status === OrderStatus.Cooked) {
-              await this.pubusb.publish(NEW_COOKED_ORDER, {
+              await this.pubsub.publish(NEW_COOKED_ORDER, {
                 cookedOrders: newOrder,
               });
             }
           }
-          await this.pubusb.publish(NEW_ORDER_UPDATE, { orderUpdates: newOrder });
+          await this.pubsub.publish(NEW_ORDER_UPDATE, { orderUpdates: newOrder });
           return {
             ok: true,
           };
@@ -255,4 +261,39 @@ import { Order, OrderStatus } from "./entities/order.entity";
           };
         }
       }
+
+    async takeOrder(
+      driver: User,
+    { id: orderId }: TakeOrderInput,
+    ): Promise<TakeOrderOutput> {
+      try {
+        const order = await this.orders.findOne(orderId);
+        if(!order) {
+          return {
+            ok:false,
+            error:"Order not found.",
+          };
+        }
+        if(order.driver) {
+          return {
+            ok:false,
+            error:"This order already has a driver",
+          };
+        }
+        
+        await this.orders.save({
+          id: orderId,
+          driver,
+        });
+        await this.pubsub.publish(NEW_ORDER_UPDATE, { orderUpdates: { ...order, driver }, });
+        return {
+          ok:true,
+        };
+      } catch {
+        return {
+          ok:false,
+          error:"Could not update order.",
+        };
+      }
+    }
 }

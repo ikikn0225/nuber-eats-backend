@@ -3,4 +3,4 @@ import { Order } from "../entities/order.entity";
 
 
 @InputType()
-export class OrderUpdateInput extends PickType(Order, ['id']) {}
+export class OrderUpdatesInput extends PickType(Order, ['id']) {}
