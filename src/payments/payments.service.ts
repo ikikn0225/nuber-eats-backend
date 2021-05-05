@@ -35,6 +35,11 @@ export class PaymentService {
                     error: 'You are not allowed to do this.',
                 }
             }
+            restaurant.isPromoted = true;
+            const date = new Date();
+            date.setDate(date.getDate() + 7);
+            restaurant.promotedUntil = date;
+            this.restaurants.save(restaurant);
             await this.payments.save(
                 this.payments.create({
                 transactionId,
@@ -68,25 +73,5 @@ export class PaymentService {
         }
     }
 
-    @Cron("30 * * * * *", {
-        name:"myjob"
-    })
-    checkForPayments() {
-        console.log("Checking for payments...(cron)");
-        const job = this.schedulerRegistry.getCronJob("myjob");
-        console.log(job);
-        job.stop();
-        
-    }
 
-    @Interval(3000)
-    checkForPaymentsI() {
-        console.log("Checking for payments...(interval)");
-    }
-
-    @Timeout(2000)
-    afterStarts() {
-        console.log("Congrats!!!");
-        
-    }
 }
