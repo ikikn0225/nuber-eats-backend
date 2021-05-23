@@ -11,6 +11,7 @@ import { DeleteDishInput, DeleteDishOutput } from "./dtos/delete-dish.dto";
 import { DeleteRestaurantInput, DeleteRestaurantOutput } from "./dtos/delete-restaurant.dto";
 import { EditDishInput, EditDishOutput } from "./dtos/edit-dish.dto";
 import { EditRestaurantInput, EditRestaurantOutput } from "./dtos/edit-restaurant.dto";
+import { MyRestaurantsOutput } from "./dtos/my-restaurants.dto";
 import { RestaurantInput, RestaurantOutput } from "./dtos/restaurant.dto";
 import { RestaurantsInput, RestaurantsOutput } from "./dtos/restaurants.dto";
 import { SearchRestaurantInput, SearchRestaurantOutput } from "./dtos/search-restaurant.dto";
@@ -121,6 +122,21 @@ export class RestaurantService {
         }
     }
 
+    async myRestaurants(owner: User): Promise<MyRestaurantsOutput> {
+        try {
+          const restaurants = await this.restaurants.find({ owner });
+          return {
+            restaurants,
+            ok: true,
+          };
+        } catch {
+          return {
+            ok: false,
+            error: 'Could not find restaurants.',
+          };
+        }
+      }
+
     async allCategories(): Promise<AllCategoriesOutput> {
         try {
             const categories = await this.categories.find();
@@ -166,6 +182,7 @@ export class RestaurantService {
                 ok:true,
                 category,
                 totalPages: Math.ceil(totalResults / 25),
+                totalResults,
             }
         } catch (error) {
             return {
@@ -178,8 +195,8 @@ export class RestaurantService {
     async allRestaurants({page}:RestaurantsInput):Promise<RestaurantsOutput> {
         try {
             const[results, totalResults] = await this.restaurants.findAndCount({
-                skip: (page-1) * 25,
-                take: 25,
+                skip: (page-1) * 3,
+                take: 3,
                 order: {
                     isPromoted:'DESC',
                 },
@@ -187,7 +204,7 @@ export class RestaurantService {
             return {
                 ok:true,
                 results,
-                totalPages: Math.ceil(totalResults / 25),
+                totalPages: Math.ceil(totalResults / 3),
                 totalResults,
             }
         } catch (error) {
