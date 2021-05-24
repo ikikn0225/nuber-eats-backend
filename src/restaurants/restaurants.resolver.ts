@@ -20,7 +20,7 @@ import { Restaurant } from "./entities/restaurant.entity";
 import { CategoryRepository } from "./repositories/category.repository";
 import { RestaurantService } from "./restaurants.service";
 
-//리졸버는 쿼리에서 특정 필드에 대한 요청이 있을 때, 그것을 어떤 로직으로 처리할지 GraphQL에게 알려주는 역할을 맡습니다.
+//리졸버는 쿼리에서 특정 필드에 대한 요청이 있을 때, Service의 함수를 사용하여 불러와야할 데이터를 GraphQL에게 알려주는 역할을 맡습니다.
 @Resolver(of => Restaurant)
 export class RestaurantResolver{
     constructor(private readonly restaurantService: RestaurantService) {}
