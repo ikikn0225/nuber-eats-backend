@@ -11,6 +11,7 @@ import { DeleteDishInput, DeleteDishOutput } from "./dtos/delete-dish.dto";
 import { DeleteRestaurantInput, DeleteRestaurantOutput } from "./dtos/delete-restaurant.dto";
 import { EditDishInput, EditDishOutput } from "./dtos/edit-dish.dto";
 import { EditRestaurantInput, EditRestaurantOutput } from "./dtos/edit-restaurant.dto";
+import { MyRestaurantInput, MyRestaurantOutput } from "./dtos/my-restaurant.dto";
 import { MyRestaurantsOutput } from "./dtos/my-restaurants.dto";
 import { RestaurantInput, RestaurantOutput } from "./dtos/restaurant.dto";
 import { RestaurantsInput, RestaurantsOutput } from "./dtos/restaurants.dto";
@@ -43,6 +44,7 @@ export class RestaurantService {
             await this.restaurants.save(newRestaurant);
             return {
                 ok:true,
+                restaurantId: newRestaurant.id,
             }
         } catch {
             return {
@@ -135,7 +137,22 @@ export class RestaurantService {
             error: 'Could not find restaurants.',
           };
         }
-      }
+    }
+
+    async myRestaurant(owner: User, {id}: MyRestaurantInput,): Promise<MyRestaurantOutput> {
+        try {
+            const restaurant = await this.restaurants.findOne({owner, id});
+            return {
+                restaurant,
+                ok:true,
+            };
+        } catch {
+            return {
+                ok:false,
+                error: 'Could not find restaurant.',
+            }
+        }
+    }
 
     async allCategories(): Promise<AllCategoriesOutput> {
         try {
