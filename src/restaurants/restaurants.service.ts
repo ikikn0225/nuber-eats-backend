@@ -139,20 +139,26 @@ export class RestaurantService {
         }
     }
 
-    async myRestaurant(owner: User, {id}: MyRestaurantInput,): Promise<MyRestaurantOutput> {
+    async myRestaurant(
+        owner: User,
+        { id }: MyRestaurantInput,
+      ): Promise<MyRestaurantOutput> {
         try {
-            const restaurant = await this.restaurants.findOne({owner, id});
-            return {
-                restaurant,
-                ok:true,
-            };
+          const restaurant = await this.restaurants.findOne(
+            { owner, id },
+            { relations: ['menu', 'orders'] },
+          );
+          return {
+            restaurant,
+            ok: true,
+          };
         } catch {
-            return {
-                ok:false,
-                error: 'Could not find restaurant.',
-            }
+          return {
+            ok: false,
+            error: 'Could not find restaurant',
+          };
         }
-    }
+      }
 
     async allCategories(): Promise<AllCategoriesOutput> {
         try {

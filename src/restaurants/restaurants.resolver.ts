@@ -43,13 +43,13 @@ export class RestaurantResolver{
     }
 
     @Query(returns => MyRestaurantOutput)
-    @Role(["Owner"])
-    myRestaurant(
-        @AuthUser() owner:User,
-        @Args("input") myRestaurantInput:MyRestaurantInput,
-    ): Promise<MyRestaurantsOutput> {
-        return this.restaurantService.myRestaurant(owner, myRestaurantInput);
-    }
+  @Role(['Owner'])
+  myRestaurant(
+    @AuthUser() owner: User,
+    @Args('input') myRestaurantInput: MyRestaurantInput,
+  ): Promise<MyRestaurantOutput> {
+    return this.restaurantService.myRestaurant(owner, myRestaurantInput);
+  }
 
     @Mutation(returns =>EditRestaurantOutput)
     @Role(["Owner"])
