@@ -273,7 +273,7 @@ export class RestaurantService {
             if(owner.id !== restaurant.ownerId) {
                 return {
                     ok:false,
-                    error: 'Your can not do that.',
+                    error: 'You can not do that.',
                 }
             }
             console.log(restaurant);
