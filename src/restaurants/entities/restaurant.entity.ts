@@ -47,8 +47,11 @@ export class Restaurant extends CoreEntity {
     )
     orders: Order[];
 
-    @Field(type => [Dish], { nullable: true })
-    @OneToMany( type => Dish, dish => dish.restaurant, { nullable: true } )
+    @Field(type => [Dish])
+    @OneToMany(
+        type => Dish,
+        dish => dish.restaurant,
+    )
     menu: Dish[];
 
     @Field(type => Boolean)
