@@ -1,4 +1,4 @@
-import { Controller, Post, UploadedFile, UseInterceptors } from "@nestjs/common";
+import { Controller, Inject, Post, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import * as AWS from 'aws-sdk';
 
@@ -7,15 +7,20 @@ const BUCKET_NAME = "dooseongubereats0225";
 
 @Controller("uploads")
 export class UploadsController {
+    constructor (
+        @Inject('ACCESSKEYID') private readonly accessKeyId,
+        @Inject('SECRETACCESSKEY') private readonly secretAccessKey,
+    ) {
+        AWS.config.update({
+            credentials: {
+                accessKeyId: this.accessKeyId,
+                secretAccessKey: this.secretAccessKey
+            }
+        });
+    }
     @Post('')
     @UseInterceptors(FileInterceptor('file'))
     async uploadFile(@UploadedFile() file) {
-        AWS.config.update({
-            credentials: {
-                accessKeyId: process.env.AWS_S3_Access_Key_Id,
-                secretAccessKey: process.env.AWS_S3_SecretAccessKey
-            }
-        });
         try {
             // 먼저 아래 주석으로 AWS S3에 Bucket 생성해야한다.
             // const upload = await new AWS.S3().createBucket({
