@@ -59,7 +59,7 @@ import { Order, OrderStatus } from "./entities/order.entity";
                         console.log(`USD + ${dishOption.extra}`);
                         
                     }else {
-                        const dishOptionChoice = dishOption.choices.find(optionChoice => optionChoice.name === itemOption.choice,);
+                        const dishOptionChoice = dishOption.choices?.find(optionChoice => optionChoice.name === itemOption.choice,);
                         if(dishOptionChoice) {
                             if(dishOptionChoice.extra) {
                                 dishFinalPrice+=dishOptionChoice.extra;
@@ -91,6 +91,7 @@ import { Order, OrderStatus } from "./entities/order.entity";
         });
         return {
             ok:true,
+            orderId:order.id,
         }
         } catch (error) {
             return {
