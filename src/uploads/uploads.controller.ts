@@ -7,9 +7,9 @@ import {
   import { ConfigService } from '@nestjs/config';
   import { FileInterceptor } from '@nestjs/platform-express';
   import * as AWS from 'aws-sdk';
-
+  
   const BUCKET_NAME = 'dooseongubereats0225';
-
+  
   @Controller('uploads')
   export class UploadsController {
     constructor(private readonly configService: ConfigService) {}
@@ -42,4 +42,8 @@ import {
         return null;
       }
     }
+<<<<<<< HEAD
   } 
+=======
+  }
+>>>>>>> 308b6e79873b918e10e919da794f42e058242f01
