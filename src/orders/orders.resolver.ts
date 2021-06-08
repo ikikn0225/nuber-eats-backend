@@ -7,6 +7,7 @@ import { NEW_PENDING_ORDER, NEW_COOKED_ORDER, PUB_SUB, NEW_ORDER_UPDATE } from "
 import { User } from "src/users/entities/user.entity";
 import { CreateOrderInput, CreateOrderOutput } from "./dtos/create-order.dto";
 import { EditOrderInput, EditOrderOutput } from "./dtos/edit-order.dto";
+import { GetMyOrdersInput, GetMyOrdersOutput } from "./dtos/get-my-orders";
 import { GetOrderInput, GetOrderOutput } from "./dtos/get-order.dto";
 import { GetOrdersInput, GetOrdersOutput } from "./dtos/get-orders.dto";
 import { OrderUpdatesInput } from "./dtos/order-updates.dto";
@@ -49,6 +50,15 @@ export class OrderResolver {
   ): Promise<GetOrderOutput> {
     return this.ordersService.getOrder(user, getOrderInput);
   }
+
+  @Query(returns => GetMyOrdersOutput)
+  @Role(["Owner"])
+  async getMyOrders(
+    @AuthUser() user:User,
+  ): Promise<GetMyOrdersOutput> {
+    return this.ordersService.getMyOrders(user);
+  }
+
 
   @Mutation(returns => EditOrderOutput)
   @Role(['Owner', 'Delivery'])

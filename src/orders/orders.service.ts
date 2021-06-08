@@ -8,6 +8,7 @@ import { User, UserRole } from "src/users/entities/user.entity";
 import { Repository } from "typeorm";
 import { CreateOrderInput, CreateOrderOutput } from "./dtos/create-order.dto";
 import { EditOrderInput, EditOrderOutput } from "./dtos/edit-order.dto";
+import { GetMyOrdersInput, GetMyOrdersOutput } from "./dtos/get-my-orders";
 import { GetOrderInput, GetOrderOutput } from "./dtos/get-order.dto";
 import { GetOrdersInput, GetOrdersOutput } from "./dtos/get-orders.dto";
 import { TakeOrderInput, TakeOrderOutput } from "./dtos/take-order.dto";
@@ -143,6 +144,30 @@ import { Order, OrderStatus } from "./entities/order.entity";
             error: 'Could not get orders',
           };
         }
+    }
+
+    async getMyOrders(
+      user:User,
+    ): Promise<GetMyOrdersOutput> {
+      try {
+        let orders: Order[];
+        const restaurants = await this.restaurants.find({
+          where: {
+            owner: user,
+          },
+          relations: ['orders'],
+        });
+        orders = restaurants.map(restaurant => restaurant.orders).flat(1);
+        return {
+          ok: true,
+          orders,
+        }
+      } catch {
+        return {
+          ok:false,
+          error:"There is no orders.",
+        }
+      }
     }
 
     canSeeOrder(user: User, order: Order): boolean {
