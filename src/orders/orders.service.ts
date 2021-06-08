@@ -87,6 +87,8 @@ import { Order, OrderStatus } from "./entities/order.entity";
             items:orderItems,
           }),
         );
+        console.log(order);
+        
         await this.pubsub.publish(NEW_PENDING_ORDER, {
           pendingOrders: {order, ownerId: restaurant.ownerId},
         });
